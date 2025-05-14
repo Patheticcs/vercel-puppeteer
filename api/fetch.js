@@ -3,7 +3,7 @@ import chromium from '@sparticuz/chromium-min';
 
 export default async function handler(req, res) {
   const { url } = req.query;
-  
+
   if (!url) {
     return res.status(400).send('Missing URL');
   }
@@ -11,11 +11,11 @@ export default async function handler(req, res) {
   console.log('Requested URL:', url);  // Log the requested URL for debugging
 
   try {
-    // Check if chromium is available
+    // Path to the Chromium executable supported by Vercel
     const executablePath = await chromium.executablePath();
     console.log('Using Chromium executable at:', executablePath);
 
-    // Start the Puppeteer browser instance
+    // Start the Puppeteer browser instance with a supported Chromium build
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
