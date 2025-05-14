@@ -11,11 +11,15 @@ export default async function handler(req, res) {
   console.log('Requested URL:', url);  // Log the requested URL for debugging
 
   try {
+    // Check if chromium is available
+    const executablePath = await chromium.executablePath();
+    console.log('Using Chromium executable at:', executablePath);
+
     // Start the Puppeteer browser instance
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath: executablePath,
       headless: chromium.headless,
     });
 
@@ -35,6 +39,6 @@ export default async function handler(req, res) {
     res.send(content);
   } catch (error) {
     console.error('Error details:', error);  // Log error details for debugging
-    res.status(500).send('Error processing the request');
+    res.status(500).send(`Error processing the request: ${error.message}`);
   }
 }
