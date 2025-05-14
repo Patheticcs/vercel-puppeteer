@@ -3,20 +3,38 @@ import chromium from '@sparticuz/chromium-min';
 
 export default async function handler(req, res) {
   const { url } = req.query;
-  if (!url) return res.status(400).send('Missing url');
+  
+  if (!url) {
+    return res.status(400).send('Missing URL');
+  }
 
-  const browser = await puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless
-  });
+  console.log('Requested URL:', url);  // Log the requested URL for debugging
 
-  const page = await browser.newPage();
-  await page.goto(url, { waitUntil: 'networkidle2' });
+  try {
+    // Start the Puppeteer browser instance
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
 
-  const content = await page.evaluate(() => document.documentElement.innerText);
-  await browser.close();
-  res.setHeader('Content-Type', 'text/plain');
-  res.send(content);
+    const page = await browser.newPage();
+
+    // Increase timeout to avoid crashes due to slow loading
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+
+    // Extract the content from the page
+    const content = await page.evaluate(() => document.documentElement.innerText);
+
+    // Close the browser
+    await browser.close();
+
+    // Return the extracted content as plain text
+    res.setHeader('Content-Type', 'text/plain');
+    res.send(content);
+  } catch (error) {
+    console.error('Error processing the URL:', error); 
+    res.status(500).send('Error processing the request');
+  }
 }
