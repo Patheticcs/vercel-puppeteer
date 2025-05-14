@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     res.setHeader('Content-Type', 'text/plain');
     res.send(content);
   } catch (error) {
-    console.error('Error processing the URL:', error); 
+    console.error('Error details:', error);  // Log error details for debugging
     res.status(500).send('Error processing the request');
   }
 }
